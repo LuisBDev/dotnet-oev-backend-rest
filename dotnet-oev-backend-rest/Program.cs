@@ -1,5 +1,6 @@
 using System.Reflection;
 using dotnet_oev_backend_rest.Data;
+using dotnet_oev_backend_rest.Middleware;
 using dotnet_oev_backend_rest.Repositories.Implementations;
 using dotnet_oev_backend_rest.Repositories.Interfaces;
 using dotnet_oev_backend_rest.Repositories.UnitOfWork;
@@ -42,6 +43,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
+
+// Registrar el middleware de manejo global de excepciones aquí
+app.UseGlobalExceptionHandler();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
