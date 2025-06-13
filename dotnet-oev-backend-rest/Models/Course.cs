@@ -25,4 +25,19 @@ public class Course
     public string? Status { get; set; }
     public DateTime CreationDate { get; set; }
     public DateTime LastUpdate { get; set; }
+    
+    // --- Relación Muchos a Uno con User (Autor del curso) ---
+    [Required]
+    public long UserId { get; set; } // Clave foránea
+
+    [ForeignKey("UserId")]
+    public User? User { get; set; } // Propiedad de navegación
+
+    // --- Relaciones Uno a Muchos ---
+
+    // Un curso tiene muchas inscripciones (enrollments)
+    public List<Enrollment>? EnrollmentList { get; set; }
+
+    // Un curso tiene muchas lecciones
+    public List<Lesson>? LessonList { get; set; }
 }
