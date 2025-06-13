@@ -1,6 +1,10 @@
+using System.Reflection;
 using dotnet_oev_backend_rest.Data;
 using dotnet_oev_backend_rest.Repositories.Implementations;
 using dotnet_oev_backend_rest.Repositories.Interfaces;
+using dotnet_oev_backend_rest.Repositories.UnitOfWork;
+using dotnet_oev_backend_rest.Services.Implementations;
+using dotnet_oev_backend_rest.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,11 +18,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, serverVersion)
 );
 
-// --- REGISTRAR LOS REPOSITORIOS ---
+// 1. Registro de AutoMapper para que encuentre los perfiles de mapeo
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<ICourseRepository, CourseRepository>();
-
+// 2. Registro de la Unidad de Trabajo y los servicios
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+// No se necesita registrar los repositorios individualmente si se usa Unit of Work
 
 
 builder.Services.AddControllers();

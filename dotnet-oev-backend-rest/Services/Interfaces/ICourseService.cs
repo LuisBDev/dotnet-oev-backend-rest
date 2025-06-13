@@ -1,13 +1,15 @@
-﻿using dotnet_oev_backend_rest.Models;
+﻿using dotnet_oev_backend_rest.Dtos.Request;
+using dotnet_oev_backend_rest.Dtos.Response;
+using dotnet_oev_backend_rest.Models;
 
 namespace dotnet_oev_backend_rest.Services.Interfaces;
 
 public interface ICourseService
 {
-    Task<IReadOnlyList<Course>> GetAllCoursesAsync();
-    Task<Course?> GetCourseByIdAsync(long id);
-    Task<IReadOnlyList<Course>> GetCoursesPublishedByUserIdAsync(long userId);
-    Task<Course> CreateCourseAsync(Course course);
-    Task<bool> UpdateCourseAsync(Course course);
-    Task<bool> DeleteCourseAsync(long id);
+    Task<IReadOnlyList<CourseResponseDTO>> FindAllCoursesAsync();
+    Task<IReadOnlyList<CourseResponseDTO>> FindAllCoursesByUserIdAsync(long userId);
+    Task<CourseResponseDTO?> FindCourseByIdAsync(long id);
+    Task<CourseResponseDTO> UpdateCourseByIdAsync(long id, UpdateCourseRequestDTO updateCourseRequestDTO);
+    Task<bool> DeleteCourseByIdAsync(long id);
+    Task<CourseResponseDTO> CreateCourseAsync(long userId, CourseRequestDTO courseRequestDTO);
 }
