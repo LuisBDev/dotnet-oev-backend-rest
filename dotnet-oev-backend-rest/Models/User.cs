@@ -36,5 +36,16 @@ public class User
     public string? ProfilePicture { get; set; }
     
     public Role Role { get; set; }
+    
+    // --- Relaciones "Uno a Muchos" ---
+
+    // Un usuario puede tener muchas inscripciones (enrollments)
+    public List<Enrollment>? EnrollmentList { get; set; }
+
+    // Un usuario puede ser el autor de muchos cursos
+    public List<Course>? CourseList { get; set; }
+
+    // Un usuario tiene el progreso de muchas lecciones
+    public List<UserLessonProgress>? LessonProgressList { get; set; }
 }
 
