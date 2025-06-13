@@ -1,4 +1,6 @@
 using dotnet_oev_backend_rest.Data;
+using dotnet_oev_backend_rest.Repositories.Implementations;
+using dotnet_oev_backend_rest.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,12 @@ var serverVersion = new MySqlServerVersion(new Version(8, 0, 39));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, serverVersion)
 );
+
+// --- REGISTRAR LOS REPOSITORIOS ---
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+
 
 
 builder.Services.AddControllers();
