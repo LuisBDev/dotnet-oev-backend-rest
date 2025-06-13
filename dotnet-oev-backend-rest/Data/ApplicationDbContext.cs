@@ -9,7 +9,6 @@ public class ApplicationDbContext : DbContext
     {
     }
 
-    // Un DbSet por cada entidad que será una tabla en la BD
     public DbSet<User> Users { get; set; }
     public DbSet<Course> Courses { get; set; }
     public DbSet<Enrollment> Enrollments { get; set; }
@@ -20,29 +19,49 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // --- Configuraciones Adicionales (Fluent API) ---
+        // --- Configuraciones de Tipos y Restricciones Únicas ---
 
-        // 1. Configurar Enums para que se guarden como texto (string) en la BD
+        modelBuilder.Entity<User>().Property(u => u.Role).HasConversion<string>();
+        modelBuilder.Entity<UserLessonProgress>().Property(p => p.Status).HasConversion<string>();
+        modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+
+        // --- Configuraciones de Borrado en Cascada ---
+
+        // Cuando un Usuario es eliminado...
         modelBuilder.Entity<User>()
-            .Property(u => u.Role)
-            .HasConversion<string>();
+            .HasMany(u => u.EnrollmentList)       // tiene muchas inscripciones
+            .WithOne(e => e.User)                 // cada inscripción tiene un usuario
+            .OnDelete(DeleteBehavior.Cascade);    // y se borran en cascada.
 
-        modelBuilder.Entity<UserLessonProgress>()
-            .Property(p => p.Status)
-            .HasConversion<string>();
-            
-        // 2. Definir que el email del usuario debe ser único
         modelBuilder.Entity<User>()
-            .HasIndex(u => u.Email)
-            .IsUnique();
+            .HasMany(u => u.LessonProgressList)   // tiene mucho progreso de lecciones
+            .WithOne(p => p.User)                 // cada progreso tiene un usuario
+            .OnDelete(DeleteBehavior.Cascade);    // y se borra en cascada.
 
-        // Aquí también puedes configurar borrados en cascada si lo necesitas.
-        // Ejemplo para la relación Lección -> Progreso:
+        // Relación Usuario -> Curso (Autor)
+        // Por seguridad, NO queremos que al borrar un usuario se borren todos los cursos que creó.
+        // Podría ser una pérdida de datos masiva. Usamos Restrict para prevenirlo.
+        // La base de datos dará un error si intentas borrar un usuario que aún tiene cursos.
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.CourseList)
+            .WithOne(c => c.User)
+            .OnDelete(DeleteBehavior.Restrict);   // Previene el borrado en cascada.
+
+        // Cuando un Curso es eliminado...
+        modelBuilder.Entity<Course>()
+            .HasMany(c => c.EnrollmentList)       // tiene muchas inscripciones
+            .WithOne(e => e.Course)               // cada inscripción tiene un curso
+            .OnDelete(DeleteBehavior.Cascade);    // y se borran en cascada.
+
+        modelBuilder.Entity<Course>()
+            .HasMany(c => c.LessonList)           // tiene muchas lecciones
+            .WithOne(l => l.Course)               // cada lección tiene un curso
+            .OnDelete(DeleteBehavior.Cascade);    // y se borran en cascada.
+
+        // Cuando una Lección es eliminada...
         modelBuilder.Entity<Lesson>()
-            .HasMany(l => l.ProgressList)
-            .WithOne(p => p.Lesson)
-            .OnDelete(DeleteBehavior.Cascade); // Borra los progresos si se borra la lección
-        
-        // TODO: agregar mas cascadas
+            .HasMany(l => l.ProgressList)         // tiene mucho progreso de usuarios
+            .WithOne(p => p.Lesson)               // cada progreso tiene una lección
+            .OnDelete(DeleteBehavior.Cascade);    // y se borra en cascada.
     }
 }
