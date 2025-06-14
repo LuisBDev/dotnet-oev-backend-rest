@@ -1,12 +1,11 @@
 using System.Reflection;
 using dotnet_oev_backend_rest.Data;
 using dotnet_oev_backend_rest.Middleware;
-using dotnet_oev_backend_rest.Repositories.Implementations;
-using dotnet_oev_backend_rest.Repositories.Interfaces;
 using dotnet_oev_backend_rest.Repositories.UnitOfWork;
 using dotnet_oev_backend_rest.Services.Implementations;
 using dotnet_oev_backend_rest.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +26,7 @@ builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 // 2. Registro de la Unidad de Trabajo y los servicios
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IUserService, UserService>();
 // No se necesita registrar los repositorios individualmente si se usa Unit of Work
 
 
@@ -36,7 +36,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "OEV Prime API",
         Version = "v1",
