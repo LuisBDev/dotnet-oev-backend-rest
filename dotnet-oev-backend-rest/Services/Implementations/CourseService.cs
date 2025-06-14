@@ -24,7 +24,7 @@ public class CourseService : ICourseService
 
     public async Task<IReadOnlyList<CourseResponseDTO>> FindAllCoursesAsync()
     {
-        var courses = await _unitOfWork.CourseRepository.GetAllAsync();
+        var courses = await _unitOfWork.CourseRepository.FindAllAsync();
         return _mapper.Map<IReadOnlyList<CourseResponseDTO>>(courses);
     }
     
@@ -38,7 +38,7 @@ public class CourseService : ICourseService
     public async Task<CourseResponseDTO?> FindCourseByIdAsync(long id)
     {
         // Usamos el método que carga al autor para que el mapeo sea completo
-        var course = await _unitOfWork.CourseRepository.GetCourseWithAuthorByIdAsync(id);
+        var course = await _unitOfWork.CourseRepository.FindCourseWithAuthorByIdAsync(id);
         if (course == null)
         {
             throw new NotFoundException($"Course with id {id} not found");
@@ -48,9 +48,7 @@ public class CourseService : ICourseService
     
     public async Task<CourseResponseDTO> CreateCourseAsync(long userId, CourseRequestDTO courseRequestDTO)
     {
-        // var user = await _unitOfWork.UserRepository.GetByIdAsync(userId);
-        var user = new User();
-        // TODO: Simulación de usuario, reemplazar con la lógica real de obtención de usuario
+        var user = await _unitOfWork.UserRepository.FindByIdAsync(userId);
         if (user == null)
         {
             throw new NotFoundException($"User with id {userId} not found");
@@ -72,12 +70,15 @@ public class CourseService : ICourseService
         await _unitOfWork.CompleteAsync(); // Guardamos en la base de datos
 
         course.User = user; // Asignamos el objeto para el mapeo de respuesta
+        
+        // TODO: validar que el usuario se está asociando correctamente al curso
+        
         return _mapper.Map<CourseResponseDTO>(course);
     }
 
     public async Task<CourseResponseDTO> UpdateCourseByIdAsync(long id, UpdateCourseRequestDTO updateDto)
     {
-        var courseToUpdate = await _unitOfWork.CourseRepository.GetCourseWithAuthorByIdAsync(id);
+        var courseToUpdate = await _unitOfWork.CourseRepository.FindCourseWithAuthorByIdAsync(id);
         if (courseToUpdate == null)
         {
             throw new NotFoundException($"Course with id {id} not found");
@@ -96,7 +97,7 @@ public class CourseService : ICourseService
     public async Task<bool> DeleteCourseByIdAsync(long id)
     {
         // Obtenemos el curso y sus lecciones para poder borrar los videos
-        var courseToDelete = await _unitOfWork.CourseRepository.GetCourseWithLessonsByIdAsync(id);
+        var courseToDelete = await _unitOfWork.CourseRepository.FindCourseWithLessonsByIdAsync(id);
         if (courseToDelete == null)
         {
             // En lugar de lanzar una excepción, podemos devolver false

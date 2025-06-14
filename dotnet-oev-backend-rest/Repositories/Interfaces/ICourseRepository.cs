@@ -6,8 +6,8 @@ public interface ICourseRepository : IGenericRepository<Course>
 {
     Task<IReadOnlyList<Course>> FindCoursesPublishedByUserIdAsync(long userId);
     
-    Task<Course?> GetCourseWithAuthorByIdAsync(long id);
+    Task<Course?> FindCourseWithAuthorByIdAsync(long id);
 
-    Task<Course?> GetCourseWithLessonsByIdAsync(long id);
+    Task<Course?> FindCourseWithLessonsByIdAsync(long id);
     
 }

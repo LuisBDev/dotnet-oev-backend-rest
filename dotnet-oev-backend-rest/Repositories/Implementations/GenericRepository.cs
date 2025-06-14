@@ -25,12 +25,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         _context.Set<T>().Remove(entity);
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync()
+    public async Task<IReadOnlyList<T>> FindAllAsync()
     {
         return await _context.Set<T>().ToListAsync();
     }
 
-    public async Task<T?> GetByIdAsync(long id)
+    public async Task<T?> FindByIdAsync(long id)
     {
         return await _context.Set<T>().FindAsync(id);
     }

@@ -20,14 +20,14 @@ public class CourseRepository : GenericRepository<Course>, ICourseRepository
             .ToListAsync();
     }
     
-    public async Task<Course?> GetCourseWithAuthorByIdAsync(long id)
+    public async Task<Course?> FindCourseWithAuthorByIdAsync(long id)
     {
         return await _context.Courses
             .Include(c => c.User) // Carga la relación con User
             .FirstOrDefaultAsync(c => c.Id == id);
     }
     
-    public async Task<Course?> GetCourseWithLessonsByIdAsync(long id)
+    public async Task<Course?> FindCourseWithLessonsByIdAsync(long id)
     {
         return await _context.Courses
             .Include(c => c.LessonList) // Carga la relación con Lesson
