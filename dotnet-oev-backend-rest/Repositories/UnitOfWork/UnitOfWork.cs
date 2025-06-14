@@ -9,11 +9,13 @@ public class UnitOfWork : IUnitOfWork
     private readonly ApplicationDbContext _context;
     
     public ICourseRepository CourseRepository { get; private set; }
+    public IUserRepository UserRepository { get; private set; }
 
     public UnitOfWork(ApplicationDbContext context)
     {
         _context = context;
         CourseRepository = new CourseRepository(_context);
+        UserRepository = new UserRepository(_context);
         // ... inicializa los otros repositorios
     }
 
