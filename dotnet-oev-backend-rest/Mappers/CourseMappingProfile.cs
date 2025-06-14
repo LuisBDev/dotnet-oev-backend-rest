@@ -9,6 +9,8 @@ public class CourseMappingProfile : Profile
 {
     public CourseMappingProfile()
     {
+        // Principio DRY, no se necesita definir mapeos de colecciones explícitamente.
+        
         // Mapeo de Entidad a DTO de Respuesta
         CreateMap<Course, CourseResponseDTO>()
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.User.Id))
