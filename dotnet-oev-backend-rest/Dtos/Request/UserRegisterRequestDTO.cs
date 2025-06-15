@@ -10,5 +10,7 @@ public class UserRegisterRequestDTO
     public string Email { get; set; }
     public string Password { get; set; }
     public string? Phone { get; set; }
+
     public Role Role { get; set; } = Role.Student;
+    // TODO: Validar mayusculas y minusculas en el request.
 }
