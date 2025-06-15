@@ -11,9 +11,12 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
 
-    public AuthController(IAuthService authService)
+    private readonly ILogger<AuthController> _logger;
+
+    public AuthController(IAuthService authService, ILogger<AuthController> logger)
     {
         _authService = authService;
+        _logger = logger;
     }
 
     [HttpPost("login")]
@@ -27,6 +30,8 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<UserResponseDTO>> Register([FromBody] UserRegisterRequestDTO userRegisterRequestDTO)
     {
+        _logger.LogInformation("Registering user DTO: {}", userRegisterRequestDTO);
+
         var registerAsync = await _authService.RegisterAsync(userRegisterRequestDTO);
 
         return CreatedAtAction(nameof(Login), new { email = registerAsync.Email }, registerAsync);

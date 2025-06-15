@@ -10,6 +10,9 @@ public class AuthUserResponseDTO
     public string MaternalSurname { get; set; }
     public string Email { get; set; }
     public string? Phone { get; set; }
-    public Role Role { get; set; }
+
+    // [JsonConverter(typeof(JsonStringEnumConverter))]
+    public string Role { get; set; }
+
     public string Token { get; set; }
 }

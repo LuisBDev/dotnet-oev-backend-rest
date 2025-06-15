@@ -2,7 +2,6 @@
 
 public class UserResponseDTO
 {
-    
     public long Id { get; set; }
     public string Name { get; set; }
     public string PaternalSurname { get; set; }
@@ -10,6 +9,4 @@ public class UserResponseDTO
     public string Email { get; set; }
     public string Phone { get; set; }
     public string Role { get; set; }
-    
-    
 }
