@@ -117,4 +117,18 @@ public class EnrollmentService : IEnrollmentService
         //     // Assuming you add a UserLessonProgressRepository to your Unit of Work
         //     await _unitOfWork.UserLessonProgressRepository.AddAsync(progress);
     }
+    
+    public async Task<bool> DeleteEnrollmentByIdAsync(long enrollmentId)
+    {
+        var enrollment = await _unitOfWork.EnrollmentRepository.FindByIdAsync(enrollmentId);
+        if (enrollment == null) return false; // Not found
+
+        var course = await _unitOfWork.CourseRepository.FindByIdAsync(enrollment.CourseId);
+        if (course != null && course.TotalStudents > 0) course.TotalStudents--;
+
+        _unitOfWork.EnrollmentRepository.Delete(enrollment);
+        await _unitOfWork.CompleteAsync();
+
+        return true;
+    }
 }
