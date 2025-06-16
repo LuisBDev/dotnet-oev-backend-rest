@@ -87,4 +87,17 @@ public class EnrollmentsController : ControllerBase
         var updatedEnrollment = await _enrollmentService.UpdateEnrollmentByIdAsync(id, enrollmentUpdateRequestDTO);
         return Ok(updatedEnrollment);
     }
+    
+    /// <summary>
+    ///     Elimina una inscripción por su ID.
+    /// </summary>
+    [HttpDelete("delete/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteEnrollmentById(long id)
+    {
+        var result = await _enrollmentService.DeleteEnrollmentByIdAsync(id);
+        if (!result) return NotFound();
+        return NoContent();
+    }
 }
