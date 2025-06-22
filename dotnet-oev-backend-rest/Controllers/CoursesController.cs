@@ -1,11 +1,10 @@
 using dotnet_oev_backend_rest.Dtos.Request;
 using dotnet_oev_backend_rest.Dtos.Response;
 using dotnet_oev_backend_rest.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace dotnet_oev_backend_rest.Controllers
-{
+namespace dotnet_oev_backend_rest.Controllers;
+
 [ApiController]
 [Route("api/course")]
 public class CoursesController : ControllerBase
@@ -18,7 +17,7 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
-    /// Crea un nuevo curso asociado a un usuario.
+    ///     Crea un nuevo curso asociado a un usuario.
     /// </summary>
     [HttpPost("create/{userId}")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CourseResponseDTO))]
@@ -27,13 +26,13 @@ public class CoursesController : ControllerBase
     public async Task<IActionResult> CreateCourse(long userId, [FromBody] CourseRequestDTO courseRequestDTO)
     {
         var newCourse = await _courseService.CreateCourseAsync(userId, courseRequestDTO);
-        
+
         // Retorna un 201 Created con la ubicación del nuevo recurso en el header "Location".
         return CreatedAtAction(nameof(FindCourseById), new { id = newCourse.Id }, newCourse);
     }
 
     /// <summary>
-    /// Obtiene una lista de todos los cursos.
+    ///     Obtiene una lista de todos los cursos.
     /// </summary>
     [HttpGet("findAll")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CourseResponseDTO>))]
@@ -44,7 +43,7 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
-    /// Obtiene todos los cursos publicados por un usuario específico.
+    ///     Obtiene todos los cursos publicados por un usuario específico.
     /// </summary>
     [HttpGet("findAllByUserId/{userId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CourseResponseDTO>))]
@@ -55,9 +54,9 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
-    /// Busca un curso por su ID.
+    ///     Busca un curso por su ID.
     /// </summary>
-    [HttpGet("{id}", Name = "FindCourseById")]
+    [HttpGet("findCourse/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CourseResponseDTO))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CourseResponseDTO>> FindCourseById(long id)
@@ -68,35 +67,33 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
-    /// Elimina un curso por su ID.
+    ///     Elimina un curso por su ID.
     /// </summary>
-    [HttpDelete("{id}")]
+    [HttpDelete("delete/{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCourseById(long id)
     {
         var result = await _courseService.DeleteCourseByIdAsync(id);
         if (!result)
-        {
             // Si el servicio indica que el curso no se encontró, devolvemos 404.
             return NotFound();
-        }
-        
+
         // Retorna 204 No Content si la eliminación fue exitosa.
         return NoContent();
     }
 
     /// <summary>
-    /// Actualiza parcialmente un curso por su ID.
+    ///     Actualiza parcialmente un curso por su ID.
     /// </summary>
-    [HttpPatch("{id}")]
+    [HttpPatch("update/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CourseResponseDTO))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CourseResponseDTO>> UpdateCourseById(long id, [FromBody] UpdateCourseRequestDTO courseRequestDTO)
+    public async Task<ActionResult<CourseResponseDTO>> UpdateCourseById(long id,
+        [FromBody] UpdateCourseRequestDTO courseRequestDTO)
     {
         var updatedCourse = await _courseService.UpdateCourseByIdAsync(id, courseRequestDTO);
         // La excepción NotFoundException será manejada por el middleware.
         return Ok(updatedCourse);
     }
-}
 }
