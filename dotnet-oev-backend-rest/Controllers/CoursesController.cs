@@ -54,15 +54,21 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
-    ///     Busca un curso por su ID.
+    ///     Obtiene los detalles de un curso específico por su ID.
     /// </summary>
-    [HttpGet("findCourse/{id}")]
+    /// <param name="id">ID del curso a consultar (debe ser mayor que 0)</param>
+    /// <returns>Los detalles del curso si existe</returns>
+    [HttpGet("findCourse/{id:long}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CourseResponseDTO))]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CourseResponseDTO>> FindCourseById(long id)
     {
+        if (id <= 0)
+            return BadRequest("El ID del curso debe ser un número mayor que cero.");
+
         var course = await _courseService.FindCourseByIdAsync(id);
-        // La excepción NotFoundException será manejada por el middleware.
+
         return Ok(course);
     }
 
