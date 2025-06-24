@@ -14,19 +14,14 @@ namespace dotnet_oev_backend_rest.Models
         [Column("user_id")]
         public long UserId { get; set; }
 
-        [ForeignKey("Conference")]
-        [Column("conference_id")]
-        public long ConferenceId { get; set; }
-
         [Required]
         [MaxLength(50)]
-        public string Status { get; set; } = string.Empty; // Example: 'ACTIVE', 'COMPLETED'
+        public string Status { get; set; } = string.Empty;
 
         [Column("registration_date")]
         public DateTime RegistrationDate { get; set; }
 
-        // Navigation Properties
+        // Navigation Property
         public virtual User User { get; set; } = null!;
-        public virtual Conference Conference { get; set; } = null!;
     }
 }

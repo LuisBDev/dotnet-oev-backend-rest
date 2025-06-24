@@ -1,7 +1,6 @@
 using dotnet_oev_backend_rest.Dtos.Request;
 using dotnet_oev_backend_rest.Dtos.Response;
 using dotnet_oev_backend_rest.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_oev_backend_rest.Controllers
@@ -47,25 +46,11 @@ namespace dotnet_oev_backend_rest.Controllers
             return Ok(response);
         }
 
-        [HttpGet("findAllByConferenceId/{courseId}")]
-        public async Task<ActionResult<List<RegistrationResponseDTO>>> FindRegistrationsByConferenceId(long courseId)
-        {
-            var response = await _registrationService.FindRegistrationsByConferenceIdAsync(courseId);
-            return Ok(response);
-        }
-
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult> DeleteRegistrationById(long id)
         {
             await _registrationService.DeleteRegistrationByIdAsync(id);
             return NoContent();
-        }
-
-        [HttpGet("findRegisteredUsersByConferenceId/{conferenceId}")]
-        public async Task<ActionResult<List<UserResponseDTO>>> FindRegisteredUsersByConferenceId(long conferenceId)
-        {
-            var response = await _registrationService.FindRegisteredUsersByConferenceIdAsync(conferenceId);
-            return Ok(response);
         }
     }
 }
