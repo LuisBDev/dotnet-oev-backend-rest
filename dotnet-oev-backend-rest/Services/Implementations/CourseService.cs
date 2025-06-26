@@ -11,8 +11,9 @@ namespace dotnet_oev_backend_rest.Services.Implementations;
 
 public class CourseService : ICourseService
 {
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+
+    private readonly IUnitOfWork _unitOfWork;
     // private readonly IS3Service _s3Service; 
 
     public CourseService(IUnitOfWork unitOfWork, IMapper mapper)
@@ -24,10 +25,10 @@ public class CourseService : ICourseService
 
     public async Task<IReadOnlyList<CourseResponseDTO>> FindAllCoursesAsync()
     {
-        var courses = await _unitOfWork.CourseRepository.FindAllAsync();
+        var courses = await _unitOfWork.CourseRepository.FindAllCoursesIncludingAuthorAsync();
         return _mapper.Map<IReadOnlyList<CourseResponseDTO>>(courses);
     }
-    
+
     public async Task<IReadOnlyList<CourseResponseDTO>> FindAllCoursesByUserIdAsync(long userId)
     {
         // Usamos el método del repositorio que ya incluye los datos del autor
@@ -39,25 +40,16 @@ public class CourseService : ICourseService
     {
         // Usamos el método que carga al autor para que el mapeo sea completo
         var course = await _unitOfWork.CourseRepository.FindCourseWithAuthorByIdAsync(id);
-        if (course == null)
-        {
-            throw new NotFoundException($"Course with id {id} not found");
-        }
+        if (course == null) throw new NotFoundException($"Course with id {id} not found");
         return _mapper.Map<CourseResponseDTO>(course);
     }
-    
+
     public async Task<CourseResponseDTO> CreateCourseAsync(long userId, CourseRequestDTO courseRequestDTO)
     {
         var user = await _unitOfWork.UserRepository.FindByIdAsync(userId);
-        if (user == null)
-        {
-            throw new NotFoundException($"User with id {userId} not found");
-        }
-        
-        if (user.Role != Role.Instructor) 
-        {
-            throw new ForbiddenException($"User with id {userId} is not allowed to create courses");
-        }
+        if (user == null) throw new NotFoundException($"User with id {userId} not found");
+
+        if (user.Role != Role.Instructor) throw new ForbiddenException($"User with id {userId} is not allowed to create courses");
 
         var course = _mapper.Map<Course>(courseRequestDTO);
         course.UserId = userId; // Asignamos la clave foránea
@@ -70,27 +62,24 @@ public class CourseService : ICourseService
         await _unitOfWork.CompleteAsync(); // Guardamos en la base de datos
 
         course.User = user; // Asignamos el objeto para el mapeo de respuesta
-        
+
         // TODO: validar que el usuario se está asociando correctamente al curso
-        
+
         return _mapper.Map<CourseResponseDTO>(course);
     }
 
     public async Task<CourseResponseDTO> UpdateCourseByIdAsync(long id, UpdateCourseRequestDTO updateDto)
     {
         var courseToUpdate = await _unitOfWork.CourseRepository.FindCourseWithAuthorByIdAsync(id);
-        if (courseToUpdate == null)
-        {
-            throw new NotFoundException($"Course with id {id} not found");
-        }
-        
+        if (courseToUpdate == null) throw new NotFoundException($"Course with id {id} not found");
+
         // AutoMapper aplica los cambios del DTO a la entidad existente, ignorando nulos
         _mapper.Map(updateDto, courseToUpdate);
         courseToUpdate.LastUpdate = DateTime.UtcNow;
 
         // No es necesario llamar a Update() porque EF Core ya rastrea la entidad
         await _unitOfWork.CompleteAsync();
-        
+
         return _mapper.Map<CourseResponseDTO>(courseToUpdate);
     }
 
@@ -99,26 +88,20 @@ public class CourseService : ICourseService
         // Obtenemos el curso y sus lecciones para poder borrar los videos
         var courseToDelete = await _unitOfWork.CourseRepository.FindCourseWithLessonsByIdAsync(id);
         if (courseToDelete == null)
-        {
             // En lugar de lanzar una excepción, podemos devolver false
             // para que el controlador devuelva un 404 Not Found.
             return false;
-        }
 
         if (courseToDelete.LessonList != null && courseToDelete.LessonList.Any())
-        {
             foreach (var lesson in courseToDelete.LessonList)
-            {
                 if (!string.IsNullOrEmpty(lesson.VideoKey))
                 {
                     // await _s3Service.DeleteFileAsync("oev-mooc-bucket", lesson.VideoKey);
                 }
-            }
-        }
 
         _unitOfWork.CourseRepository.Delete(courseToDelete);
         await _unitOfWork.CompleteAsync();
-        
+
         return true;
     }
 }

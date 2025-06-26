@@ -12,6 +12,13 @@ public class CourseRepository : GenericRepository<Course>, ICourseRepository
     }
 
     // Implementación del método personalizado usando LINQ
+    public async Task<IReadOnlyList<Course>> FindAllCoursesIncludingAuthorAsync()
+    {
+        return await _context.Courses
+            .Include(c => c.User) // Incluimos el autor para el mapeo
+            .ToListAsync();
+    }
+
     public async Task<IReadOnlyList<Course>> FindCoursesPublishedByUserIdAsync(long userId)
     {
         return await _context.Courses
@@ -32,7 +39,7 @@ public class CourseRepository : GenericRepository<Course>, ICourseRepository
             .Include(c => c.User) // Carga la relación con User
             .FirstOrDefaultAsync(c => c.Id == id);
     }
-    
+
     public async Task<Course?> FindCourseWithLessonsByIdAsync(long id)
     {
         return await _context.Courses

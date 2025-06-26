@@ -14,7 +14,6 @@ public class EnrollmentRepository : GenericRepository<Enrollment>, IEnrollmentRe
     public async Task<IReadOnlyList<Enrollment>> FindEnrollmentsByUserIdAsync(long userId)
     {
         // Se usa Include() y ThenInclude() para traer los datos del curso y del autor del curso.
-        // Esto es necesario para poder construir el EnrollmentResponseDTO completo en la capa de servicio.
         return await _context.Enrollments
             .Include(e => e.Course)
             .ThenInclude(c => c.User) // Incluye el autor del curso (User)
@@ -24,9 +23,9 @@ public class EnrollmentRepository : GenericRepository<Enrollment>, IEnrollmentRe
 
     public async Task<IReadOnlyList<Enrollment>> FindEnrollmentsByCourseIdAsync(long courseId)
     {
-        // Incluimos al usuario que está inscrito en el curso.
         return await _context.Enrollments
-            .Include(e => e.User)
+            .Include(e => e.Course)
+            .ThenInclude(c => c.User) // para InstructorName
             .Where(e => e.CourseId == courseId)
             .ToListAsync();
     }
