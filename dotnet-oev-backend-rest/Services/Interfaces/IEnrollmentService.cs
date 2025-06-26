@@ -24,4 +24,6 @@ public interface IEnrollmentService
 
 
     Task<EnrollmentResponseDTO> UpdateEnrollmentByIdAsync(long enrollmentId, EnrollmentUpdateRequestDTO enrollmentUpdateRequestDTO);
+    
+    Task<bool> DeleteEnrollmentByIdAsync(long enrollmentId);
 }

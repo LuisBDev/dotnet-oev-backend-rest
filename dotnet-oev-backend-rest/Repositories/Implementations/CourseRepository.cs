@@ -19,7 +19,13 @@ public class CourseRepository : GenericRepository<Course>, ICourseRepository
             .Where(c => c.UserId == userId)
             .ToListAsync();
     }
-    
+
+    public async Task<Course?> FindCourseByIdAsync(long id)
+    {
+        return await _context.Courses
+            .FirstOrDefaultAsync(c => c.Id == id);
+    }
+
     public async Task<Course?> FindCourseWithAuthorByIdAsync(long id)
     {
         return await _context.Courses
