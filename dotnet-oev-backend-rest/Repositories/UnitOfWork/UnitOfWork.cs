@@ -14,12 +14,14 @@ public class UnitOfWork : IUnitOfWork
         CourseRepository = new CourseRepository(_context);
         UserRepository = new UserRepository(_context);
         EnrollmentRepository = new EnrollmentRepository(_context);
+        LessonRepository = new LessonRepository(_context);
         // ... inicializa los otros repositorios
     }
 
     public ICourseRepository CourseRepository { get; }
     public IUserRepository UserRepository { get; }
     public IEnrollmentRepository EnrollmentRepository { get; }
+    public ILessonRepository LessonRepository { get; }
 
     public async Task<int> CompleteAsync()
     {
