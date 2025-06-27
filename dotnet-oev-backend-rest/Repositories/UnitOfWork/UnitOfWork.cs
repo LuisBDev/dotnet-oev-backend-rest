@@ -7,17 +7,21 @@ namespace dotnet_oev_backend_rest.Repositories.UnitOfWork;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext _context;
-    
-    public ICourseRepository CourseRepository { get; private set; }
-    public IUserRepository UserRepository { get; private set; }
 
     public UnitOfWork(ApplicationDbContext context)
     {
         _context = context;
         CourseRepository = new CourseRepository(_context);
         UserRepository = new UserRepository(_context);
+        EnrollmentRepository = new EnrollmentRepository(_context);
+        LessonRepository = new LessonRepository(_context);
         // ... inicializa los otros repositorios
     }
+
+    public ICourseRepository CourseRepository { get; }
+    public IUserRepository UserRepository { get; }
+    public IEnrollmentRepository EnrollmentRepository { get; }
+    public ILessonRepository LessonRepository { get; }
 
     public async Task<int> CompleteAsync()
     {
