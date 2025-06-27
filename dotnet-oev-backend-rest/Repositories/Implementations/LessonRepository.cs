@@ -11,10 +11,16 @@ public class LessonRepository : GenericRepository<Lesson>, ILessonRepository
     {
     }
 
+    public async Task<Lesson> FindLessonByIdAsync(long lessonId)
+    {
+        return await _context.Lessons
+            .Include(l => l.Course)
+            .FirstOrDefaultAsync(l => l.Id == lessonId);
+    }
+
     public async Task<IReadOnlyList<Lesson>> FindLessonsByCourseIdAsync(long courseId)
     {
         return await _context.Lessons
-            .Include(l => l.Course) // Incluye el curso al que pertenece la lección
             .Where(l => l.CourseId == courseId)
             .ToListAsync();
     }

@@ -19,6 +19,15 @@ public class LessonService : ILessonService
         _mapper = mapper;
     }
 
+    public async Task<IReadOnlyList<LessonResponseDTO>> FindLessonsByCourseIdAsync(long courseId)
+    {
+        var course = await _unitOfWork.CourseRepository.FindCourseByIdAsync(courseId);
+        if (course == null) throw new NotFoundException($"Course with id {courseId} not found");
+
+        var lessons = await _unitOfWork.LessonRepository.FindLessonsByCourseIdAsync(courseId);
+        return _mapper.Map<IReadOnlyList<LessonResponseDTO>>(lessons);
+    }
+
     public async Task<LessonResponseDTO> CreateLessonAsync(long courseId, LessonRequestDTO lessonRequestDTO)
     {
         var course = await _unitOfWork.CourseRepository.FindCourseByIdAsync(courseId);
@@ -34,5 +43,22 @@ public class LessonService : ILessonService
         await _unitOfWork.CompleteAsync();
 
         return _mapper.Map<LessonResponseDTO>(lessonEntity);
+    }
+
+    public async Task DeleteLessonByIdAsync(long lessonId)
+    {
+        var lesson = await _unitOfWork.LessonRepository.FindByIdAsync(lessonId);
+        if (lesson == null) throw new NotFoundException($"Lesson with id {lessonId} not found");
+
+        _unitOfWork.LessonRepository.Delete(lesson);
+        await _unitOfWork.CompleteAsync();
+    }
+
+    public async Task<LessonResponseDTO> FindLessonByIdAsync(long lessonId)
+    {
+        var lesson = await _unitOfWork.LessonRepository.FindLessonByIdAsync(lessonId);
+        if (lesson == null) throw new NotFoundException($"Lesson with id {lessonId} not found");
+
+        return _mapper.Map<LessonResponseDTO>(lesson);
     }
 }
