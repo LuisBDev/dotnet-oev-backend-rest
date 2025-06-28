@@ -3,6 +3,7 @@ using dotnet_oev_backend_rest.Dtos.Request;
 using dotnet_oev_backend_rest.Dtos.Response;
 using dotnet_oev_backend_rest.Exceptions;
 using dotnet_oev_backend_rest.Models;
+using dotnet_oev_backend_rest.Models.Enums;
 using dotnet_oev_backend_rest.Repositories.UnitOfWork;
 using dotnet_oev_backend_rest.Services.Interfaces;
 
@@ -98,26 +99,6 @@ public class EnrollmentService : IEnrollmentService
         return _mapper.Map<EnrollmentResponseDTO>(existingEnrollment);
     }
 
-
-    private async Task EnrollUserInCourseLessonsAsync(Course course, User user)
-    {
-        // var lessons = await _unitOfWork.LessonRepository.FindLessonsByCourseIdAsync(course.Id);
-        // if (!lessons.Any()) return;
-        //
-        // var progressList = lessons.Select(lesson => new UserLessonProgress
-        // {
-        //     User = user,
-        //     Lesson = lesson,
-        //     Status = Status.NOT_STARTED // Assumes 'NOT_STARTED' is a value in your Status enum
-        // }).ToList();
-        //
-        // // This is a bulk insert. You'll need a method for this in your generic repository.
-        // // For simplicity, we can loop, but a bulk method is better for performance.
-        // foreach (var progress in progressList)
-        //     // Assuming you add a UserLessonProgressRepository to your Unit of Work
-        //     await _unitOfWork.UserLessonProgressRepository.AddAsync(progress);
-    }
-    
     public async Task<bool> DeleteEnrollmentByIdAsync(long enrollmentId)
     {
         var enrollment = await _unitOfWork.EnrollmentRepository.FindByIdAsync(enrollmentId);
@@ -130,5 +111,25 @@ public class EnrollmentService : IEnrollmentService
         await _unitOfWork.CompleteAsync();
 
         return true;
+    }
+
+
+    private async Task EnrollUserInCourseLessonsAsync(Course course, User user)
+    {
+        var lessons = await _unitOfWork.LessonRepository.FindLessonsByCourseIdAsync(course.Id);
+        if (lessons == null || !lessons.Any())
+            throw new NotFoundException($"No lessons found for course with id {course.Id}");
+
+        var progressList = lessons.Select(lesson => new UserLessonProgress
+        {
+            UserId = user.Id,
+            LessonId = lesson.Id,
+            Status = Status.NotCompleted,
+            CompletedAt = null // Initially not completed
+        }).ToList();
+
+        foreach (var progress in progressList) await _unitOfWork.UserLessonProgressRepository.AddAsync(progress);
+
+        await _unitOfWork.CompleteAsync();
     }
 }

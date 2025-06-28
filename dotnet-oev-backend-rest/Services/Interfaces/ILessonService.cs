@@ -5,5 +5,10 @@ namespace dotnet_oev_backend_rest.Services.Interfaces;
 
 public interface ILessonService
 {
+    Task<IReadOnlyList<LessonResponseDTO>> FindLessonsByCourseIdAsync(long courseId);
+
     Task<LessonResponseDTO> CreateLessonAsync(long courseId, LessonRequestDTO lessonRequestDTO);
+
+    Task DeleteLessonByIdAsync(long lessonId);
+    Task<LessonResponseDTO> FindLessonByIdAsync(long lessonId);
 }

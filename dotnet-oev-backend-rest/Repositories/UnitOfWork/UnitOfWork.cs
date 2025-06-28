@@ -15,6 +15,8 @@ public class UnitOfWork : IUnitOfWork
         UserRepository = new UserRepository(_context);
         EnrollmentRepository = new EnrollmentRepository(_context);
         LessonRepository = new LessonRepository(_context);
+        UserLessonProgressRepository = new UserLessonProgressRepository(_context);
+
         // ... inicializa los otros repositorios
     }
 
@@ -22,6 +24,7 @@ public class UnitOfWork : IUnitOfWork
     public IUserRepository UserRepository { get; }
     public IEnrollmentRepository EnrollmentRepository { get; }
     public ILessonRepository LessonRepository { get; }
+    public IUserLessonProgressRepository UserLessonProgressRepository { get; }
 
     public async Task<int> CompleteAsync()
     {

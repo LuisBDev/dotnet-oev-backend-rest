@@ -8,6 +8,7 @@ public interface IUnitOfWork : IDisposable
     IUserRepository UserRepository { get; }
     IEnrollmentRepository EnrollmentRepository { get; }
     ILessonRepository LessonRepository { get; }
+    IUserLessonProgressRepository UserLessonProgressRepository { get; }
 
     // Guarda todos los cambios hechos en esta unidad de trabajo.
     Task<int> CompleteAsync();
