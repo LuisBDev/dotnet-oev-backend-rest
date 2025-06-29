@@ -29,12 +29,19 @@ public class CourseService : ICourseService
         return _mapper.Map<IReadOnlyList<CourseResponseDTO>>(courses);
     }
 
+// Método asíncrono que devuelve una lista de cursos (DTOs) publicados por un usuario específico.
     public async Task<IReadOnlyList<CourseResponseDTO>> FindAllCoursesByUserIdAsync(long userId)
     {
-        // Usamos el método del repositorio que ya incluye los datos del autor
+        // Llama al repositorio para obtener todos los cursos publicados por el usuario con el ID especificado.
         var courses = await _unitOfWork.CourseRepository.FindCoursesPublishedByUserIdAsync(userId);
-        return _mapper.Map<IReadOnlyList<CourseResponseDTO>>(courses);
+
+        // Utiliza AutoMapper (_mapper) para convertir la lista de entidades Course a una lista de CourseResponseDTO.
+        var courseResponseDtoList = _mapper.Map<IReadOnlyList<CourseResponseDTO>>(courses);
+
+        // Retorna la lista de cursos en formato DTO, lista para ser usada en la respuesta de una API, por ejemplo.
+        return courseResponseDtoList;
     }
+
 
     public async Task<CourseResponseDTO?> FindCourseByIdAsync(long id)
     {
