@@ -7,7 +7,6 @@ namespace dotnet_oev_backend_rest.Mappers;
 
 public class LessonMappingProfile : Profile
 {
-    // Lesson requestDTOToEntity(LessonRequestDTO lessonRequestDTO);
 
     public LessonMappingProfile()
     {
