@@ -1,36 +1,19 @@
-using dotnet_oev_backend_rest.Dtos.Response;
-using dotnet_oev_backend_rest.Models;
+using System.Text.Json.Serialization;
+using dotnet_oev_backend_rest.Models.Enums;
 
-namespace dotnet_oev_backend_rest.Mappers
+namespace dotnet_oev_backend_rest.Dtos.Response;
+
+public class UserLessonProgressResponseDTO
 {
-    public class UserLessonProgressMapper
-    {
-        public static UserLessonProgressResponseDTO EntityToResponseDTO(UserLessonProgress userLessonProgress)
-        {
-            if (userLessonProgress == null)
-                throw new ArgumentNullException(nameof(userLessonProgress));
+    public long Id { get; set; }
+    public long UserId { get; set; }
+    public long LessonId { get; set; }
+    public string LessonTitle { get; set; } = string.Empty;
+    public string LessonVideoKey { get; set; } = string.Empty;
+    public int Duration { get; set; }
 
-            return new UserLessonProgressResponseDTO
-            {
-                Id = userLessonProgress.Id,
-                UserId = userLessonProgress.User?.Id ?? 0,
-                LessonId = userLessonProgress.Lesson?.Id ?? 0,
-                LessonTitle = userLessonProgress.Lesson?.Title ?? string.Empty,
-                LessonVideoKey = userLessonProgress.Lesson?.VideoKey ?? string.Empty,
-                Duration = userLessonProgress.Lesson?.Duration ?? 0,
-                Status = userLessonProgress.Status,
-                CompletedAt = userLessonProgress.CompletedAt
-            };
-        }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public Status Status { get; set; }
 
-        public static List<UserLessonProgressResponseDTO> EntityToResponseDTO(List<UserLessonProgress> userLessonProgresses)
-        {
-            if (userLessonProgresses == null)
-                return new List<UserLessonProgressResponseDTO>();
-
-            return userLessonProgresses
-                .Select(EntityToResponseDTO)
-                .ToList();
-        }
-    }
+    public DateTime? CompletedAt { get; set; }
 }
