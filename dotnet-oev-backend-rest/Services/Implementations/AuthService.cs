@@ -32,7 +32,10 @@ public class AuthService : IAuthService
         if (!BCrypt.Net.BCrypt.Verify(password, user.Password))
             throw new Exception("Invalid password");
 
-        return _mapper.Map<AuthUserResponseDTO>(user);
+        var authUserResponseDto = _mapper.Map<AuthUserResponseDTO>(user);
+        // TODO: Replace with a proper JWT token generation
+        authUserResponseDto.Token = GenerateJwtToken();
+        return authUserResponseDto;
     }
 
     public async Task<UserResponseDTO> RegisterAsync(UserRegisterRequestDTO userRegisterRequestDto)
@@ -58,5 +61,11 @@ public class AuthService : IAuthService
         if (user != null) throw new Exception($"User with email: {email} exists");
 
         return user;
+    }
+
+    private string GenerateJwtToken()
+    {
+        var token = Guid.NewGuid().ToString();
+        return token;
     }
 }
