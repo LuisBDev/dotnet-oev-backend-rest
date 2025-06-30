@@ -37,6 +37,13 @@ public class LessonsController : ControllerBase
         return CreatedAtRoute(nameof(FindLessonByIdAsync), new { lessonId = createdLesson.Id }, createdLesson);
     }
 
+    [HttpPost("create/{courseId:long}/by-user/{userId:long}")]
+    public async Task<IActionResult> CreateLessonWithAuthorCheckAsync(long courseId, long userId, [FromBody] LessonRequestDTO lessonRequestDTO)
+    {
+        var createdLesson = await _lessonService.CreateLessonWithAuthorCheckAsync(courseId, userId, lessonRequestDTO);
+        return CreatedAtRoute(nameof(FindLessonByIdAsync), new { lessonId = createdLesson.Id }, createdLesson);
+    }
+
 
     [HttpDelete("delete/{lessonId:long}")]
     public async Task<IActionResult> DeleteLessonByIdAsync(long lessonId)

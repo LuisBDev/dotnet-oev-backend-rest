@@ -61,4 +61,26 @@ public class LessonService : ILessonService
 
         return _mapper.Map<LessonResponseDTO>(lesson);
     }
+
+    public async Task<LessonResponseDTO> CreateLessonWithAuthorCheckAsync(long courseId, long userId, LessonRequestDTO lessonRequestDTO)
+    {
+        var course = await _unitOfWork.CourseRepository.FindCourseWithAuthorByIdAsync(courseId);
+        if (course == null) throw new NotFoundException($"Course with id {courseId} not found");
+
+        if (course.UserId != userId)
+        {
+            throw new ForbiddenException("Usted no es el creador de este curso.");
+        }
+
+        var lessonEntity = _mapper.Map<Lesson>(lessonRequestDTO);
+
+        lessonEntity.Course = course;
+        lessonEntity.CreatedAt = DateTime.UtcNow;
+        lessonEntity.VideoKey = lessonRequestDTO.VideoKey ?? string.Empty;
+
+        await _unitOfWork.LessonRepository.AddAsync(lessonEntity);
+        await _unitOfWork.CompleteAsync();
+
+        return _mapper.Map<LessonResponseDTO>(lessonEntity);
+    }
 }
