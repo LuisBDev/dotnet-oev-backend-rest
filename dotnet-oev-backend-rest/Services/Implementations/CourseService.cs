@@ -104,4 +104,22 @@ public class CourseService : ICourseService
 
         return true;
     }
+
+    public async Task<CourseResponseDTO> UpdateCourseWithAuthorCheckAsync(long courseId, long userId, UpdateCourseRequestDTO updateDto)
+    {
+        var courseToUpdate = await _unitOfWork.CourseRepository.FindCourseWithAuthorByIdAsync(courseId);
+        if (courseToUpdate == null) throw new NotFoundException($"Course with id {courseId} not found");
+
+        if (courseToUpdate.UserId != userId)
+        {
+            throw new ForbiddenException("User is not the author of the course");
+        }
+
+        _mapper.Map(updateDto, courseToUpdate);
+        courseToUpdate.LastUpdate = DateTime.UtcNow;
+
+        await _unitOfWork.CompleteAsync();
+
+        return _mapper.Map<CourseResponseDTO>(courseToUpdate);
+    }
 }

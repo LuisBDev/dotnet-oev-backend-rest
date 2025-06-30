@@ -12,4 +12,5 @@ public interface ICourseService
     Task<CourseResponseDTO> UpdateCourseByIdAsync(long id, UpdateCourseRequestDTO updateCourseRequestDTO);
     Task<bool> DeleteCourseByIdAsync(long id);
     Task<CourseResponseDTO> CreateCourseAsync(long userId, CourseRequestDTO courseRequestDTO);
+    Task<CourseResponseDTO> UpdateCourseWithAuthorCheckAsync(long courseId, long userId, UpdateCourseRequestDTO updateDto);
 }
