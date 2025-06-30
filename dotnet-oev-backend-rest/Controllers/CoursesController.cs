@@ -102,4 +102,26 @@ public class CoursesController : ControllerBase
         // La excepción NotFoundException será manejada por el middleware.
         return Ok(updatedCourse);
     }
+
+    [HttpPatch("update/{id}/by-user/{userId}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CourseResponseDTO))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<CourseResponseDTO>> UpdateCourseWithAuthorCheck(long id, long userId, [FromBody] UpdateCourseRequestDTO courseRequestDTO)
+    {
+        var updatedCourse = await _courseService.UpdateCourseWithAuthorCheckAsync(id, userId, courseRequestDTO);
+        return Ok(updatedCourse);
+    }
+
+    [HttpDelete("delete/{id}/by-user/{userId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DeleteCourseWithAuthorCheck(long id, long userId)
+    {
+        var result = await _courseService.DeleteCourseWithAuthorCheckAsync(id, userId);
+        if (!result) return NotFound();
+
+        return NoContent();
+    }
 }
