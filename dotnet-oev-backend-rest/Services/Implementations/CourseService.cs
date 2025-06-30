@@ -104,4 +104,45 @@ public class CourseService : ICourseService
 
         return true;
     }
+
+    public async Task<CourseResponseDTO> UpdateCourseWithAuthorCheckAsync(long courseId, long userId, UpdateCourseRequestDTO updateDto)
+    {
+        var courseToUpdate = await _unitOfWork.CourseRepository.FindCourseWithAuthorByIdAsync(courseId);
+        if (courseToUpdate == null) throw new NotFoundException($"Course with id {courseId} not found");
+
+        if (courseToUpdate.UserId != userId)
+        {
+            throw new ForbiddenException("Usted no es el creador de este curso. No tiene permitido modificarlo.");
+        }
+
+        _mapper.Map(updateDto, courseToUpdate);
+        courseToUpdate.LastUpdate = DateTime.UtcNow;
+
+        await _unitOfWork.CompleteAsync();
+
+        return _mapper.Map<CourseResponseDTO>(courseToUpdate);
+    }
+
+    public async Task<bool> DeleteCourseWithAuthorCheckAsync(long courseId, long userId)
+    {
+        var courseToDelete = await _unitOfWork.CourseRepository.FindCourseWithLessonsByIdAsync(courseId);
+        if (courseToDelete == null) return false;
+
+        if (courseToDelete.UserId != userId)
+        {
+            throw new ForbiddenException("Usted no es el creador de este curso. No tiene permitido eliminarlo.");
+        }
+
+        if (courseToDelete.LessonList != null && courseToDelete.LessonList.Any())
+            foreach (var lesson in courseToDelete.LessonList)
+                if (!string.IsNullOrEmpty(lesson.VideoKey))
+                {
+                    // await _s3Service.DeleteFileAsync("oev-mooc-bucket", lesson.VideoKey);
+                }
+
+        _unitOfWork.CourseRepository.Delete(courseToDelete);
+        await _unitOfWork.CompleteAsync();
+
+        return true;
+    }
 }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using dotnet_oev_backend_rest.Models.Enums;
 
 namespace dotnet_oev_backend_rest.Dtos.Response;

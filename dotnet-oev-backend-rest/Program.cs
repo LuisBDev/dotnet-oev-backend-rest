@@ -48,6 +48,18 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+
+// CORS habilitado para todos los orígenes, métodos y headers
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Registrar el middleware de manejo global de excepciones
@@ -63,6 +75,9 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty; // Swagger en la raíz: http://localhost:5071/
     });
 }
+
+// Activar CORS globalmente para todos los entornos
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
