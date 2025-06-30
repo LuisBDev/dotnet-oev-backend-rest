@@ -16,5 +16,8 @@ public class LessonMappingProfile : Profile
         // Mapeo de Entidad a DTO de Respuesta
         CreateMap<Lesson, LessonResponseDTO>()
             .ForMember(dest => dest.CourseId, opt => opt.MapFrom(src => src.Course.Id));
+
+        CreateMap<UpdateLessonRequestDTO, Lesson>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
     }
 }

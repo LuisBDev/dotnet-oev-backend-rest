@@ -51,4 +51,11 @@ public class LessonsController : ControllerBase
         await _lessonService.DeleteLessonByIdAsync(lessonId);
         return NoContent();
     }
+
+    [HttpPatch("update/{lessonId:long}")]
+    public async Task<ActionResult<LessonResponseDTO>> UpdateLessonAsync(long lessonId, [FromBody] UpdateLessonRequestDTO updateLessonRequestDTO)
+    {
+        var updatedLesson = await _lessonService.UpdateLessonAsync(lessonId, updateLessonRequestDTO);
+        return Ok(updatedLesson);
+    }
 }

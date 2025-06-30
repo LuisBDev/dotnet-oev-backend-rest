@@ -10,6 +10,7 @@ public interface ILessonService
     Task<LessonResponseDTO> CreateLessonAsync(long courseId, LessonRequestDTO lessonRequestDTO);
 
     Task DeleteLessonByIdAsync(long lessonId);
+    Task<LessonResponseDTO> UpdateLessonAsync(long lessonId, UpdateLessonRequestDTO updateLessonRequestDTO);
     Task<LessonResponseDTO> FindLessonByIdAsync(long lessonId);
     Task<LessonResponseDTO> CreateLessonWithAuthorCheckAsync(long courseId, long userId, LessonRequestDTO lessonRequestDTO);
 }

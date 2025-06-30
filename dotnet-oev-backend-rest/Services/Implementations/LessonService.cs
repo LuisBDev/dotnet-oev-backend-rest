@@ -83,4 +83,17 @@ public class LessonService : ILessonService
 
         return _mapper.Map<LessonResponseDTO>(lessonEntity);
     }
+
+    public async Task<LessonResponseDTO> UpdateLessonAsync(long lessonId, UpdateLessonRequestDTO updateLessonRequestDTO)
+    {
+        var lessonToUpdate = await _unitOfWork.LessonRepository.FindByIdAsync(lessonId);
+        if (lessonToUpdate == null) throw new NotFoundException($"Lesson with id {lessonId} not found");
+
+        _mapper.Map(updateLessonRequestDTO, lessonToUpdate);
+        lessonToUpdate.UpdatedAt = DateTime.UtcNow;
+
+        await _unitOfWork.CompleteAsync();
+
+        return _mapper.Map<LessonResponseDTO>(lessonToUpdate);
+    }
 }
