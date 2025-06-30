@@ -112,7 +112,7 @@ public class CourseService : ICourseService
 
         if (courseToUpdate.UserId != userId)
         {
-            throw new ForbiddenException("User is not the author of the course");
+            throw new ForbiddenException("Usted no es el creador de este curso. No tiene permitido modificarlo.");
         }
 
         _mapper.Map(updateDto, courseToUpdate);
@@ -121,5 +121,28 @@ public class CourseService : ICourseService
         await _unitOfWork.CompleteAsync();
 
         return _mapper.Map<CourseResponseDTO>(courseToUpdate);
+    }
+
+    public async Task<bool> DeleteCourseWithAuthorCheckAsync(long courseId, long userId)
+    {
+        var courseToDelete = await _unitOfWork.CourseRepository.FindCourseWithLessonsByIdAsync(courseId);
+        if (courseToDelete == null) return false;
+
+        if (courseToDelete.UserId != userId)
+        {
+            throw new ForbiddenException("Usted no es el creador de este curso. No tiene permitido eliminarlo.");
+        }
+
+        if (courseToDelete.LessonList != null && courseToDelete.LessonList.Any())
+            foreach (var lesson in courseToDelete.LessonList)
+                if (!string.IsNullOrEmpty(lesson.VideoKey))
+                {
+                    // await _s3Service.DeleteFileAsync("oev-mooc-bucket", lesson.VideoKey);
+                }
+
+        _unitOfWork.CourseRepository.Delete(courseToDelete);
+        await _unitOfWork.CompleteAsync();
+
+        return true;
     }
 }

@@ -112,4 +112,16 @@ public class CoursesController : ControllerBase
         var updatedCourse = await _courseService.UpdateCourseWithAuthorCheckAsync(id, userId, courseRequestDTO);
         return Ok(updatedCourse);
     }
+
+    [HttpDelete("delete/{id}/by-user/{userId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> DeleteCourseWithAuthorCheck(long id, long userId)
+    {
+        var result = await _courseService.DeleteCourseWithAuthorCheckAsync(id, userId);
+        if (!result) return NotFound();
+
+        return NoContent();
+    }
 }
