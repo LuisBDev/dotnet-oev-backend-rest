@@ -6,8 +6,8 @@ namespace dotnet_oev_backend_rest.Middleware;
 
 public class GlobalExceptionHandlerMiddleware
 {
-    private readonly RequestDelegate _next;
     private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
+    private readonly RequestDelegate _next;
 
     public GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlerMiddleware> logger)
     {
@@ -52,10 +52,13 @@ public class GlobalExceptionHandlerMiddleware
                 statusCode = HttpStatusCode.Forbidden;
                 errorResponse = errorResponse with { title = "Access Forbidden" };
                 break;
-            // Aquí puedes añadir más casos para otras excepciones personalizadas
-            // ej: case ValidationException:
-            //         statusCode = HttpStatusCode.BadRequest;
-            //         break;
+            // case ValidationException:
+            //     statusCode = HttpStatusCode.BadRequest;
+            //     break;
+            case AppException:
+                statusCode = HttpStatusCode.InternalServerError;
+                errorResponse = errorResponse with { title = "Application Error" };
+                break;
             default:
                 statusCode = HttpStatusCode.InternalServerError;
                 errorResponse = errorResponse with { title = "Internal Server Error" };
@@ -65,7 +68,7 @@ public class GlobalExceptionHandlerMiddleware
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)statusCode;
-        
+
         // Escribimos la respuesta JSON
         await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
     }

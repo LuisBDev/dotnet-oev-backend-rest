@@ -3,6 +3,7 @@ using dotnet_oev_backend_rest.Dtos.Request;
 using dotnet_oev_backend_rest.Dtos.Response;
 using dotnet_oev_backend_rest.Exceptions;
 using dotnet_oev_backend_rest.Models;
+using dotnet_oev_backend_rest.Models.Enums;
 using dotnet_oev_backend_rest.Repositories.UnitOfWork;
 using dotnet_oev_backend_rest.Services.Interfaces;
 
@@ -42,6 +43,8 @@ public class LessonService : ILessonService
         await _unitOfWork.LessonRepository.AddAsync(lessonEntity);
         await _unitOfWork.CompleteAsync();
 
+        await AssignLessonProgressToEnrolledUsersAsync(course.Id, lessonEntity.Id);
+
         return _mapper.Map<LessonResponseDTO>(lessonEntity);
     }
 
@@ -67,10 +70,7 @@ public class LessonService : ILessonService
         var course = await _unitOfWork.CourseRepository.FindCourseWithAuthorByIdAsync(courseId);
         if (course == null) throw new NotFoundException($"Course with id {courseId} not found");
 
-        if (course.UserId != userId)
-        {
-            throw new ForbiddenException("Usted no es el creador de este curso.");
-        }
+        if (course.UserId != userId) throw new ForbiddenException("Usted no es el creador de este curso.");
 
         var lessonEntity = _mapper.Map<Lesson>(lessonRequestDTO);
 
@@ -80,6 +80,8 @@ public class LessonService : ILessonService
 
         await _unitOfWork.LessonRepository.AddAsync(lessonEntity);
         await _unitOfWork.CompleteAsync();
+
+        await AssignLessonProgressToEnrolledUsersAsync(course.Id, lessonEntity.Id);
 
         return _mapper.Map<LessonResponseDTO>(lessonEntity);
     }
@@ -95,5 +97,22 @@ public class LessonService : ILessonService
         await _unitOfWork.CompleteAsync();
 
         return _mapper.Map<LessonResponseDTO>(lessonToUpdate);
+    }
+
+    private async Task AssignLessonProgressToEnrolledUsersAsync(long courseId, long lessonId)
+    {
+        var enrolledUsers = await _unitOfWork.EnrollmentRepository.FindEnrolledUsersByCourseIdAsync(courseId);
+        if (enrolledUsers == null || !enrolledUsers.Any()) return;
+
+        var progressList = enrolledUsers.Select(user => new UserLessonProgress
+        {
+            UserId = user.Id,
+            LessonId = lessonId,
+            Status = Status.NotCompleted,
+            CompletedAt = null
+        }).ToList();
+
+        foreach (var progress in progressList) await _unitOfWork.UserLessonProgressRepository.AddAsync(progress);
+        await _unitOfWork.CompleteAsync();
     }
 }
