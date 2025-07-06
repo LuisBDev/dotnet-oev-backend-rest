@@ -42,7 +42,7 @@ public class EnrollmentService : IEnrollmentService
             CourseId = course.Id,
             UserId = user.Id,
             Status = "ACTIVE",
-            Progress = 0.0,
+            Progress = 0.1,
             EnrollmentDate = DateTime.UtcNow,
             Paid = false
         };
@@ -57,7 +57,7 @@ public class EnrollmentService : IEnrollmentService
 
         // Load navigation properties for the response DTO
         enrollment.Course = course;
-        enrollment.Course.User = await _unitOfWork.UserRepository.FindByIdAsync(course.UserId);
+        enrollment.User = user;
 
         return _mapper.Map<EnrollmentResponseDTO>(enrollment);
     }
@@ -118,7 +118,7 @@ public class EnrollmentService : IEnrollmentService
     {
         var lessons = await _unitOfWork.LessonRepository.FindLessonsByCourseIdAsync(course.Id);
         if (lessons == null || !lessons.Any())
-            throw new NotFoundException($"No lessons found for course with id {course.Id}");
+            return; // No lessons to enroll in
 
         var progressList = lessons.Select(lesson => new UserLessonProgress
         {
