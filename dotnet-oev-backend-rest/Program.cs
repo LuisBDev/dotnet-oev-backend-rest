@@ -1,4 +1,7 @@
 using System.Reflection;
+using Amazon;
+using Amazon.Runtime;
+using Amazon.S3;
 using dotnet_oev_backend_rest.Data;
 using dotnet_oev_backend_rest.Middleware;
 using dotnet_oev_backend_rest.Repositories.UnitOfWork;
@@ -14,6 +17,30 @@ var builder = WebApplication.CreateBuilder(args);
 // Conexión a la base de datos MySQL 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var serverVersion = new MySqlServerVersion(new Version(8, 0, 39));
+
+
+// --- Configuración de AWS S3 ---
+
+
+var awsAccessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+var awsSecretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+var awsRegion = RegionEndpoint.USEast2;
+
+var awsCredentials = new BasicAWSCredentials(awsAccessKey, awsSecretKey);
+var awsConfig = new AmazonS3Config
+{
+    RegionEndpoint = awsRegion
+};
+
+//  Registro el cliente de Amazon S3 en el contenedor de inyección de dependencias.
+//  Uso de AddSingleton porque el cliente de S3 es thread-safe y está diseñado para ser reutilizado.
+builder.Services.AddSingleton<IAmazonS3>(new AmazonS3Client(awsCredentials, awsConfig));
+
+//  Registro del servicio personalizado para las operaciones de S3.
+builder.Services.AddScoped<IS3Service, S3Service>();
+
+// --- Configuración de AWS S3 ---
+
 
 // Registro de la base de datos con MySQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
